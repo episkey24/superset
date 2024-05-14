@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React, {
+ import React, {
   FunctionComponent,
   useState,
   useEffect,
@@ -555,7 +555,6 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
   ) => {
     const settings: NotificationSetting[] = [...notificationSettings];
     settings[index] = setting;
-
     // if you've changed notification method -> remove trailing methods
     if (notificationSettings[index].method !== setting.method) {
       notificationSettings[index] = setting;
@@ -569,7 +568,7 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
       }
 
       if (setting.method !== undefined && notificationAddState !== 'hidden') {
-        setNotificationAddState('active');
+        setNotificationAddState('active'); 
       }
     } else {
       setNotificationSettings(settings);
@@ -578,7 +577,6 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
 
   const removeNotificationSetting = (index: number) => {
     const settings = notificationSettings.slice();
-
     settings.splice(index, 1);
     setNotificationSettings(settings);
     setNotificationAddState('active');
@@ -612,9 +610,12 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
         recipients.push({
           recipient_config_json: {
             target: setting.recipients,
+            ccTarget: setting.cc, 
+            bccTarget: setting.bcc,
           },
           type: setting.method,
-        });
+        }
+        );
       }
     });
 
@@ -989,7 +990,6 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
     if (!notificationSettings.length) {
       return false;
     }
-
     let hasInfo = false;
 
     notificationSettings.forEach(setting => {
@@ -1058,7 +1058,7 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
   const validateNotificationSection = () => {
     const hasErrors = !checkNotificationSettings();
     const errors = hasErrors ? [TRANSLATIONS.RECIPIENTS_ERROR_TEXT] : [];
-    updateValidationStatus(Sections.Notification, errors);
+    updateValidationStatus(Sections.Notification, errors); 
   };
 
   const validateAll = () => {
@@ -1114,6 +1114,8 @@ const AlertReportModal: FunctionComponent<AlertReportModalProps> = ({
       setNotificationSettings([
         {
           recipients: '',
+          cc:'',
+          bcc:'',
           options: allowedNotificationMethods,
           method: 'Email',
         },

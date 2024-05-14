@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -59,9 +59,15 @@ export const NotificationMethod: FunctionComponent<NotificationMethodProps> = ({
   onUpdate,
   onRemove,
 }) => {
-  const { method, recipients, options } = setting || {};
+  const { method, recipients, cc, bcc, options } = setting || {};
   const [recipientValue, setRecipientValue] = useState<string>(
     recipients || '',
+  );
+  const [ccValue, setCcValue] = useState<string>(
+    cc || '',
+  );
+  const [bccValue, setBccValue] = useState<string>(
+    bcc || '',
   );
   const theme = useTheme();
 
@@ -72,13 +78,16 @@ export const NotificationMethod: FunctionComponent<NotificationMethodProps> = ({
   const onMethodChange = (method: NotificationMethodOption) => {
     // Since we're swapping the method, reset the recipients
     setRecipientValue('');
+    setCcValue('');
+    setBccValue('');
     if (onUpdate) {
       const updatedSetting = {
         ...setting,
         method,
         recipients: '',
+        cc: '',
+        bcc: '',
       };
-
       onUpdate(index, updatedSetting);
     }
   };
@@ -100,9 +109,51 @@ export const NotificationMethod: FunctionComponent<NotificationMethodProps> = ({
     }
   };
 
+  const onCcChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    const { target } = event;
+
+    setCcValue(target.value);
+
+    if (onUpdate) {
+      const updatedSetting = {
+        ...setting,
+        cc: target.value,
+      };
+
+      onUpdate(index, updatedSetting);
+    }
+  };
+
+  const onBccChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    const { target } = event;
+
+    setBccValue(target.value);
+
+    if (onUpdate) {
+      const updatedSetting = {
+        ...setting,
+        bcc: target.value,
+      };
+
+      onUpdate(index, updatedSetting);
+    }
+  };
+
   // Set recipients
   if (!!recipients && recipientValue !== recipients) {
     setRecipientValue(recipients);
+  }
+
+  if (!!cc && ccValue !== cc) {
+    setCcValue(cc);
+  }
+
+  if (!!bcc && bccValue !== bcc) {
+    setBccValue(bcc);
   }
 
   return (
@@ -137,7 +188,50 @@ export const NotificationMethod: FunctionComponent<NotificationMethodProps> = ({
           </div>
         </StyledInputContainer>
       </div>
-      {method !== undefined ? (
+      {method !== undefined ? (            
+        method === "Email" ? (
+        <StyledInputContainer>
+            <div className="control-label">
+            {t('To')}
+            <span className="required">*</span>
+          </div>
+          <div className="input-container">
+          <textarea
+              name="To"
+              data-test="recipients"
+              value={recipientValue}
+              onChange={onRecipientsChange}
+          />
+          </div>
+          <div className="control-label">
+            {t('CC')}
+          </div>
+          <div className="input-container">
+          <textarea
+              name="CC"
+              data-test="cc"
+              value={ccValue}
+              onChange={onCcChange}
+          />
+          </div>
+          <div className="control-label">
+            {t('BCC')}
+          </div>
+          <div className="input-container">
+          <textarea
+              name="BCC"
+              data-test="bcc"
+              value={bccValue}
+              onChange={onBccChange}
+          />
+          </div>
+          <div className="helper">
+          {t('Recipients are separated by "," or ";"')}
+        </div>
+        </StyledInputContainer>       
+        )
+          :
+        (
         <StyledInputContainer>
           <div className="control-label">
             {t('%s recipients', method)}
@@ -154,7 +248,8 @@ export const NotificationMethod: FunctionComponent<NotificationMethodProps> = ({
           <div className="helper">
             {t('Recipients are separated by "," or ";"')}
           </div>
-        </StyledInputContainer>
+        </StyledInputContainer>           
+          )
       ) : null}
     </StyledNotificationMethod>
   );

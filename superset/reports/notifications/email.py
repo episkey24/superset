@@ -192,12 +192,23 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
     def _get_to(self) -> str:
         return json.loads(self._recipient.recipient_config_json)["target"]
 
+    def _get_cc(self) -> str:
+        return json.loads(self._recipient.recipient_config_json)["ccTarget"]
+
+    def _get_bcc(self) -> str:
+        return json.loads(self._recipient.recipient_config_json)["bccTarget"]
+
     @statsd_gauge("reports.email.send")
     def send(self) -> None:
         subject = self._get_subject()
         content = self._get_content()
         to = self._get_to()
+        cc = self._get_cc()
+        bcc = self._get_bcc()
         try:
+            # Conditionally include CC and BCC addresses if they are not empty strings
+            cc_param = cc if cc else None
+            bcc_param = bcc if bcc else None
             send_email_smtp(
                 to,
                 subject,
@@ -207,7 +218,8 @@ class EmailNotification(BaseNotification):  # pylint: disable=too-few-public-met
                 data=content.data,
                 pdf=content.pdf,
                 images=content.images,
-                bcc="",
+                bcc=bcc_param,
+                cc=cc_param,
                 mime_subtype="related",
                 dryrun=False,
                 header_data=content.header_data,
